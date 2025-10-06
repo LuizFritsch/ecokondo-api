@@ -12,7 +12,7 @@ export class AuthController {
     ) {
         const result = await this.authService.login(email, password);
         if (!result) {
-            throw new HttpException('Email ou senha inválidos', HttpStatus.UNAUTHORIZED);
+            throw new HttpException('Wrong email or password', HttpStatus.UNAUTHORIZED);
         }
         return result;
     }

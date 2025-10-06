@@ -3,7 +3,6 @@ import * as bcrypt from 'bcrypt';
 
 @Injectable()
 export class AuthService {
-    // Simulação de usuário cadastrado
     private users = [
         { email: 'user@example.com', passwordHash: bcrypt.hashSync('123456', 10) },
         { email: 'a@a.com', passwordHash: bcrypt.hashSync('123456', 10) },
@@ -12,16 +11,16 @@ export class AuthService {
     async validateUser(email: string, password: string): Promise<boolean> {
         const user = this.users.find((u) => u.email === email);
         if (!user) {
-            console.debug('email nao encontrado');
+            console.debug('email not found');
             return false;
         };
 
         const isMatch = await bcrypt.compare(password, user.passwordHash);
         if (!isMatch) {
-            console.debug('senha incorreta');
+            console.debug('password does not match');
             return false;
         }
-        console.debug('sucesso');
+        console.debug('successful login');
         return isMatch;
     }
 
@@ -29,7 +28,6 @@ export class AuthService {
         const isValid = await this.validateUser(email, password);
         if (!isValid) return null;
 
-        // Para simplicidade, token fake
         return { token: 'fake-jwt-token-for-' + email };
     }
 }
