@@ -1,19 +1,21 @@
-import { Body, Controller, HttpException, HttpStatus, Post } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  UnauthorizedException,
+  HttpStatus,
+  Post,
+  HttpCode,
+} from '@nestjs/common';
 import { AuthService } from './auth.service';
+import { LoginDTO } from '../models/loginDTO';
 
-@Controller('login')
+@Controller('auth')
 export class AuthController {
-    constructor(private readonly authService: AuthService) { }
+  constructor(private authService: AuthService) {}
 
-    @Post()
-    async login(
-        @Body('email') email: string,
-        @Body('password') password: string,
-    ) {
-        const result = await this.authService.login(email, password);
-        if (!result) {
-            throw new HttpException('Wrong email or password', HttpStatus.UNAUTHORIZED);
-        }
-        return result;
-    }
+  @HttpCode(HttpStatus.OK)
+  @Post('/login')
+  async login(@Body() user: LoginDTO) {
+    return await this.authService.signIn(user.email, user.password);
+  }
 }

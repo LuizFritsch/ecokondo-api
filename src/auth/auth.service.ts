@@ -1,33 +1,30 @@
-import { Injectable } from '@nestjs/common';
-import * as bcrypt from 'bcrypt';
+import { Injectable, UnauthorizedException } from '@nestjs/common';
+import { UsersService, UserType } from '../users/users.service';
+import { JwtService } from '@nestjs/jwt';
 
 @Injectable()
 export class AuthService {
-    private users = [
-        { email: 'user@example.com', passwordHash: bcrypt.hashSync('123456', 10) },
-        { email: 'a@a.com', passwordHash: bcrypt.hashSync('123456', 10) },
-    ];
+  constructor(
+    private usersService: UsersService,
+    private jwtService: JwtService,
+  ) {}
 
-    async validateUser(email: string, password: string): Promise<boolean> {
-        const user = this.users.find((u) => u.email === email);
-        if (!user) {
-            console.debug('email not found');
-            return false;
-        };
-
-        const isMatch = await bcrypt.compare(password, user.passwordHash);
-        if (!isMatch) {
-            console.debug('password does not match');
-            return false;
-        }
-        console.debug('successful login');
-        return isMatch;
+  async signIn(
+    username: string,
+    pass: string,
+  ): Promise<{ access_token: string }> {
+    const user = await this.usersService.findOne(username);
+    if (user?.password !== pass) {
+      throw new UnauthorizedException();
     }
-
-    async login(email: string, password: string): Promise<{ token: string } | null> {
-        const isValid = await this.validateUser(email, password);
-        if (!isValid) return null;
-
-        return { token: 'fake-jwt-token-for-' + email };
-    }
+    const payload = {
+      sub: user.userId,
+      username: user.username,
+      userType: UserType[user.userType],
+    };
+    console.log(payload);
+    return {
+      access_token: await this.jwtService.signAsync(payload),
+    };
+  }
 }
