@@ -1,12 +1,13 @@
-import { Controller, Get } from '@nestjs/common';
+
+import { Controller, Get, Param, ParseIntPipe } from '@nestjs/common';
 import { FinanceService } from './finance.service';
 
-@Controller('finance')
+@Controller('users/:userId/finance')
 export class FinanceController {
   constructor(private readonly financeService: FinanceService) {}
 
   @Get()
-  getFinanceData() {
-    return this.financeService.getFinanceData();
+  getFinanceData(@Param('userId', ParseIntPipe) userId: number) {
+    return this.financeService.getFinanceData(userId);
   }
 }
