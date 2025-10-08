@@ -20,12 +20,12 @@ export type Address = {
 export type User = {
   userId: number;
   username: string;
-  password: string;
   email: string;
+  password: string;
   fullName: string;
   userType: UserType;
   address: Address;
-  preferredCityId: number; // Cidade onde prefere vender o material (FK para cities)
+  preferredCityId: number; // cidade onde prefere vender (FK para cities)
 };
 
 @Injectable()
@@ -34,8 +34,8 @@ export class UsersService {
     {
       userId: 1,
       username: 'admin',
-      password: '123456',
       email: 'a@a.com',
+      password: '123456',
       fullName: 'Administrador do Sistema',
       userType: UserType.admin,
       address: {
@@ -52,9 +52,9 @@ export class UsersService {
     {
       userId: 2,
       username: 'usuario',
+      email: 'b@a.com',
       password: 'usuario123',
       fullName: 'João da Silva',
-      email: 'ab@a.com',
       userType: UserType.usuario,
       address: {
         street: 'Av. Brasil',
@@ -71,7 +71,7 @@ export class UsersService {
       userId: 3,
       username: 'prefa',
       password: 'prefa123',
-      email: 'c@a.com',
+      email: 'C@a.com',
       fullName: 'Prefeitura da Silva',
       userType: UserType.prefeitura,
       address: {
@@ -91,15 +91,39 @@ export class UsersService {
     return this.users.find((user) => user.email === username);
   }
 
-  async findById(userId: number) {
+  async findById(userId: number): Promise<User> {
     const u = this.users.find((user) => user.userId === userId);
     if (!u) throw new NotFoundException('User not found');
     return u;
   }
 
-  async updatePreferredCity(userId: number, cityId: number) {
+  async updatePreferredCity(userId: number, cityId: number): Promise<User> {
     const u = await this.findById(userId);
     u.preferredCityId = cityId;
+    return u;
+  }
+
+  /**
+   * Atualiza dados básicos do usuário (nome e endereço).
+   * Campos aceitos no `partial`:
+   *  - fullName
+   *  - address.{street, number, neighborhood, postalCode, complement, latitude, longitude, cityId?}
+   */
+  async updateUser(userId: number, partial: Partial<User>): Promise<User> {
+    const u = await this.findById(userId);
+
+    if (typeof partial.fullName === 'string') {
+      u.fullName = partial.fullName;
+    }
+
+    if (partial.address) {
+      u.address = {
+        ...u.address,
+        ...partial.address,
+        cityId: partial.address.cityId ?? u.address.cityId,
+      };
+    }
+
     return u;
   }
 }

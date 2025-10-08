@@ -1,5 +1,11 @@
-
-import { Body, Controller, Get, Param, ParseIntPipe, Patch } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Get,
+  Param,
+  ParseIntPipe,
+  Patch,
+} from '@nestjs/common';
 import { UsersService } from './users.service';
 
 @Controller('users')
@@ -23,7 +29,26 @@ export class UsersController {
     @Param('userId', ParseIntPipe) userId: number,
     @Body('cityId') cityId: number,
   ) {
-    const updated = await this.usersService.updatePreferredCity(userId, Number(cityId));
+    const updated = await this.usersService.updatePreferredCity(
+      userId,
+      Number(cityId),
+    );
     return { preferredCityId: updated.preferredCityId };
+  }
+
+  // novo endpoint de atualização geral (nome/endereço)
+  @Patch(':userId')
+  async update(
+    @Param('userId', ParseIntPipe) userId: number,
+    @Body() body: any,
+  ) {
+    const updated = await this.usersService.updateUser(userId, body);
+    return {
+      userId: updated.userId,
+      fullName: updated.fullName,
+      userType: updated.userType,
+      address: updated.address,
+      preferredCityId: updated.preferredCityId,
+    };
   }
 }
