@@ -124,6 +124,8 @@ export class UsersService {
       };
     }
 
+    console.log(`[USERS] Updated user ${userId}: ${JSON.stringify(u)}`);
+
     return u;
   }
 }

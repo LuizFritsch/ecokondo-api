@@ -214,10 +214,16 @@ export class StatisticsService {
 
     const recycled = this.aggregateRecycled(sales);
 
-    return {
+    const result = {
       user: { userId: user.userId, fullName: user.fullName },
       recycled,
       sales_history: sales,
     };
+
+    console.log(
+      `[STATISTICS] Generated statistics for user ${user.userId}: ${JSON.stringify(result)}`,
+    );
+
+    return result;
   }
 }
